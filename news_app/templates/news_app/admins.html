@@ -1,0 +1,25 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+<title>{% block title %}Admin Page{% endblock title %}</title>
+
+{% block content %}
+
+<h2>All admins</h2>
+<br>
+<table class="table table-bordered table-responsive table-striped">
+    <tr>
+        <th>Username</th>
+        <th>First Name</th>
+        <th>Active</th>
+        <th>Joined</th>
+    </tr>
+    {% for admin in admins %}
+    <tr>
+        <td><em>{{ admin.username }}</em></td>
+        <td><em>{{ admin.first_name }}</em></td>
+        <td><em>{{ admin.is_active}}</em></td>
+        <td> <em>{{ admin.date_joined|date:"F d, Y" }}</em></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock content %}

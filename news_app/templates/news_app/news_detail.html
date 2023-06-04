@@ -1,0 +1,56 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+{% load hitcount_tags %}
+{% block title %} Detail Page{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="img">
+        <img src="{{ news.image.url }}" alt="{{ news.title }}" style="width:1100px; height:600px;">
+    </div>
+    <br>
+    <div class="body">
+        <h1>{{ news.title }}</h1>
+        <br>
+        <b style="padding-right: 10px;">Published time: {{ news.published_time }}</b>
+        <i class="fas fa-light fa-eye">  {% get_hit_count for news %}</i><br><br>
+        <p>{{ news.body }}</p>
+    </div>
+    <br>
+    <a href="{% url 'update_news' news.pk %}" class="btn btn-primary" style="margin-right: 10px;">Edit</a>
+    <a href="{% url 'delete_news' news.pk %}" class="btn btn-danger">Delete</a>
+</div>
+<br><br>
+
+<div class="container">
+    <div class="comments">
+        {% if comments.exists %}
+    <h3>Reviews</h3>
+    <hr>
+   {% for comment in comments %}
+        <div class="row mt-5 mb-5">
+            <div class="col-6">
+                <strong>{{ comment.user.username | safe }} - {{ comment.created_time }}</strong>
+                <p>{{ comment.body | safe}}</p>
+            </div>
+        </div>
+        <br>
+  {% endfor %}
+{% endif %}
+    </div>
+</div>
+<br><br>
+
+<div class="row mt-5">
+    <div class="col-6">
+            <h3 class="add-comment">Leave a comment</h3>
+            <form action="{% url 'news_detail' news.pk %}" method="post">
+                  {% csrf_token %}
+                  {{ comment_form.as_p }}
+                <button type="submit" class="btn btn-success">Add review</button>
+            </form>
+    </div>
+</div>
+
+<br><br>
+{% endblock content %}

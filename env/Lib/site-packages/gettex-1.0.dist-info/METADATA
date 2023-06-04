@@ -1,0 +1,196 @@
+Metadata-Version: 2.1
+Name: gettex
+Version: 1.0
+Summary: Helper to use gettext on tex files
+Author: Fabian Kreutz
+Author-email: project+gettex@fabian-kreutz.de
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: pylatexenc
+
+# gettex - gettext tools for usage with LaTeX
+
+[TOC]
+
+## Overview
+
+The GNU toolset [gettext](https://www.gnu.org/software/gettext/) is a popular and widely used
+system for application translations.
+It does however not support [LaTeX](https://www.latex-project.org), an strangely even more
+widely used typesetting language.
+
+This tool provides drop-ins for the tools `xgettext` (to extract message ids from the source text
+into a .pot file) and `msgfmt` (to distill the translated .po files into a format that can be
+used in the source).
+
+### Similar projects
+
+A similar project is [tex-gettext](https://github.com/mplucinski/tex-gettext), but with these
+noteworthy difference of how the translations go into the document:
+In tex-gettext, the source tex document and the translated .po files are merged into a new
+tex document in which function calls to gettext are replaced with the translated text.
+
+Instead this repository creates a tex library (`.sty`) file, which needs to be imported by
+the source document, which stays otherwise unchanged.
+
+### gettext complication: plural handling
+
+A common challenge in software applications is to translate messages dependent on a number
+which need to adapt to the plural rules of different languages.
+
+I would expect (and it is true for my use case) that a tex document is a rather fixed affair
+and does not require pluralizable messages, but tex is after all a kind of programming
+language, so this issue needs to be solved.
+
+When creating a `.po` file via the `msginit` tool from gettext, it will automatically add
+a plural specification into the file.  In order to fetch the correct plural form, the
+library must be able to calculate (using tex) the result of a mathmatical formula, which
+is defined in the po.
+
+The author of tex-gettext, Mariusz Pluciński, created a wonderful parser and tex-generator.
+Instead of using that, however, I changed the logic to produce more concise tex code and
+added a static mapping from all known plural specs into tex code.
+This little tool will thus fail, if the spec is unknown, i.e. even if there is only a
+braketing difference.
+
+As I don't expect new plural forms to evolve, I suggest you change the unknown spec to a
+known one (see [sty_renderer.py](src/gettex/sty_renderer.py)).
+
+## Usage
+
+### Add gettext function calls into the tex code
+
+Surround each message text that should be translated with one of these functions:
+
+* `gettext[optional comment]{message}`
+* `pgettext[optional comment]{context}{message}`
+* `ngettext[optional comment]{message}{plural message}{\integerVariable}`
+* `pngettext[oc]{context}{message}{plural}{\integerVariable}`
+
+A comment can be a help text for the translator, which has no effect on the translation.
+
+The context is similarly a help text for the translator, but has the effect of generating
+a different message id, even if the message is the same.
+
+Even though it's not necessary yet, you should also add an include statement for the `gettext.sty`.
+Example:
+
+```tex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{gettext}
+\usepackage{sectsty}                   
+
+\newcommand{\sacerdos}[1]{%
+\gettext{Sacerdos}: #1\\
+  \renewcommand{\sacerdos}[1]{\pgettext{Sacerdos}{S}: ##1\\}
+}
+\newcommand{\populo}[1]{%
+\textbf{\gettext{Populo}: #1}\\
+  \renewcommand{\populo}[1]{\textbf{\pgettext{Populo}{P}: ##1}\\}
+}
+
+\begin{document}
+
+\section*{\gettext{Ritus initiales}}
+\subsection*{\gettext{Salutatio}}
+\sacerdos{\gettext{In nómine patris, et Fílii, et Spíritus Sancti.}}
+\populo{\gettext{Amen.}}
+\sacerdos{\gettext{Dóminus vobíscum.}}
+\populo{\gettext{Et cum spíritu tuo.}}
+
+\end{document}                      
+```
+
+### Call xgettext to extract the messages
+
+Install this tool and call xgettext on your input tex file:
+
+```bash
+$ python -m venv venv
+$ . venv/bin/activate
+[venv]$ pip install gettex
+[venv]$ xgettext ordo.tex
+Wrote 10 messages and the header to messages.po
+```
+
+This will create the messages.po file.
+At least this is the default behaviour of gettext's xgettext.
+I suggest you rename it to `messages.pot`, because it is the basis for all translation files
+and will be overwritten by future calls to xgettext.
+
+I do try to keep the header comments intact though.
+So you should take some time to edit this file to add a descriptive title and a package version.
+These variables can also be set via `xgettext` cli parameters.
+
+### Create .po files for languages
+
+Let's jump straight into the commands:
+
+```bash
+domain=messages
+for lang in en_US de_DE pl; do
+  langfile="locale/${domain}-${lang}.po"
+  if ! test -f "$langfile"; then
+    msginit -i "$domain.pot" -l $lang -o "$langfile"
+  else
+    msgmerge "$langfile" "$domain.pot"
+  fi
+done
+```
+
+This is just normal gettext stuff, not using this here project at all.
+But now you have `.po` files for each wanted language.
+
+Edit those and add the translations.
+
+### Format the translations as tex library
+
+Assuming you have the above virtual environment with the installed gettex package:
+
+```bash
+[venv]$ msgfmt locale/messages-en_US.po -o gettext.sty
+```
+
+This will create a file `gettext.sty`, which you can now use with the document:
+
+```bash
+$ pdflatex ordo.tex
+This is pdfTeX, ...
+(/usr/share/texmf-dist/tex/latex/base/inputenc.sty) (./gettext.sty
+...
+Output written on ordo.pdf (1 page, 25212 bytes).
+Transcript written on ordo.log.
+```
+
+## License
+
+This project is under the MIT license, Copyright (c) 2022 Fabian Kreutz.
+
+This is compatible with the only required dependency: [pylatexenc](https://github.com/phfaist/pylatexenc), which is MIT-licensed: Copyright (c) 2015-2019 Philippe Faist
+
+## Open issues
+
+* textdomains
+  * Normally it should be possible from the code to select the catalog with the `bindtextdomain` function, or with an additional parameter in the `d*gettext` functions.
+  * Multiple catalogs can be active at the same time
+* language selection
+  * similarly the language should be selectable in the code with `setlocale`.  Currently the language is determined by which language was used to generate the `.sty`.
+
+# Changelog
+
+* Version 1.0
+  * Initial published version with some known flaws.
+
+# MIT License
+
+Copyright 2022, Fabian Kreutz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

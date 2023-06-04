@@ -1,0 +1,18 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+{% block title %} Technology News{% endblock title %}
+
+{% block content %}
+    {% for tech in tech_news %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <a href="{% url 'news_detail' tech.pk %}"><img src="{{ tech.image.url }}" alt="{{ tech.title }}" style="width: 50%"></a>
+                </div>
+                <div class="col-sm-8">
+                    <a href="{% url 'news_detail' tech.pk %}"><h4>{{ tech.title }}</h4></a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

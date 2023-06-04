@@ -1,0 +1,21 @@
+{% extends "news_app/base.html" %}
+
+{% block title %}Log-in{% endblock %}
+
+{% block content %}
+    <h4>Please enter the following information to log in</h4>
+  {% if form.errors %}
+    <p>
+      Your username and password didn't match.
+      Please try again.
+    </p>
+
+  {% endif %}
+  <div class="login-form">
+    <form action="" method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-sm">Log in</button>
+    </form>
+  </div>
+{% endblock %}

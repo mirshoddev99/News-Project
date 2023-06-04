@@ -1,0 +1,12 @@
+{% extends 'news_app/base.html' %}
+{% block title %} {{ news.title }}{% endblock title %}
+
+{% load static %}
+{% block content %}
+<br><br>
+    <h2 class="text-center">Creating a news</h2>
+    <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ creating_form.as_p }}
+    <button type="submit" class="btn btn-info ml-2">Creating</button>
+    </form>
+{% endblock %}

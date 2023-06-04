@@ -1,0 +1,16 @@
+{% extends "news_app/base.html" %}
+{% load static %}
+
+{% block title %} Register Page{% endblock title %}
+
+{% block content %}
+
+<h2>Register Page</h2>
+<p>Please fill out the following form to register</p>
+<form method="post">
+    {% csrf_token %}
+    {{ user_form.as_p }}
+    <button type="submit" class="btn btn-success">Register</button>
+    <a href="{% url 'login' %}" role="button" class="btn btn-primary">Log in</a>
+</form>
+{% endblock content %}

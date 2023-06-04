@@ -1,0 +1,3 @@
+[console_scripts]
+msgfmt = gettex.msgfmt:run
+xgettext = gettex.xgettext:run

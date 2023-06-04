@@ -1,0 +1,30 @@
+{% extends "news_app/base.html" %}
+{% load static %}
+
+{% block title %} User Profile {% endblock title %}
+
+{% block content %}
+<br><br><br><br>
+<h3>Hi, {{ user.username }} Welcome to our web-site!</h3>
+<div class="container mt-4 mb-4 p-3 d-flex justify-content-center">
+    <div class="card p-4">
+        <div class=" image d-flex flex-column justify-content-center align-items-center">
+            <button class="btn btn-secondary">
+                <img src="{{ user.profile.photo.url }}" height="100" width="100" />
+            </button>
+            <div class="d-flex flex-row justify-content-center align-items-center gap-2">
+            </div>
+            <a href="{% url 'edit_user' %}">
+                <button type="button" class="btn btn-primary btn-sm">Edit Profile</button>
+            </a>
+            <br>
+            <a href="{% url 'password_change' %}">
+                <button type="button" class="btn btn-danger btn-sm">Change password</button>
+            </a>
+            <div class=" px-2 rounded mt-4 date "> <span class="join"><strong>Joined</strong>:  <em>{{ user.date_joined|date:"F d, Y" }}</em></span>
+        </div>
+        </div>
+</div>
+    <br><br>
+
+{% endblock content %}

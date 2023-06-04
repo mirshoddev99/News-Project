@@ -1,0 +1,17 @@
+{% extends "news_app/base.html" %}
+{% load static %}
+
+{% block title %} Editing Profile {% endblock title %}
+
+{% block content %}
+
+<h3>Editing yourself information</h3><br>
+ <p>You can edit your information by filling out following forms</p>
+
+<form action="" method="post" ENCTYPE="multipart/form-data">
+  {% csrf_token %}
+  {{ user_form.as_p }}
+  {{ profile_form.as_p }}
+  <button type="submit" class="btn btn-success">Done</button>
+</form>
+{% endblock content %}

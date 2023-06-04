@@ -1,0 +1,14 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+{% block title %} {{ news.title }}{% endblock title %}
+
+{% block content %}
+<h2 class="text-center">Deleting the post</h2><br><br>
+<form method="post">
+    {% csrf_token %}
+    <p>Are you make sure to delete this <b>{{ news.title | truncatewords:5 }}</b> post?</p>
+    <a href="{% url 'news_detail' news.pk %}" class="btn btn-primary" style="margin-right: 10px;">Back</a>
+    <button type="submit" class="btn btn-danger ml-2">Delete</button>
+    <br><br>
+</form>
+{% endblock content %}

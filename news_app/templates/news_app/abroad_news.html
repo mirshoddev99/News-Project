@@ -1,0 +1,18 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+{% block title %} Abroad News{% endblock title %}
+
+{% block content %}
+    {% for abroad in abroad_news %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <a href="{% url 'news_detail' abroad.pk %}"><img src="{{ abroad.image.url }}" alt="{{ abroad.title }}" style="width: 50%"></a>
+                </div>
+                <div class="col-sm-8">
+                    <a href="{% url 'news_detail' abroad.pk %}"><h4>{{ abroad.title }}</h4></a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

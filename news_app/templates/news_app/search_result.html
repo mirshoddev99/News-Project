@@ -1,0 +1,19 @@
+{% extends 'news_app/base.html' %}
+{% load static %}
+{% block title %} Search News{% endblock title %}
+
+{% block content %}
+<h2>Search Result</h2><br><br>
+    {% for new in news_list %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <a href="{% url 'news_detail' new.pk %}"><img src="{{ new.image.url }}" alt="{{ new.title }}" style="width: 50%"></a>
+                </div>
+                <div class="col-sm-8">
+                    <a href="{% url 'news_detail' new.pk %}"><h4>{{ new.title }}</h4></a>
+                </div>
+            </div>
+        </div><br><br>
+    {% endfor %}
+{% endblock content %}
