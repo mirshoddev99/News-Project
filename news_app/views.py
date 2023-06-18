@@ -13,11 +13,6 @@ from hitcount.models import HitCount
 from hitcount.views import HitCountMixin
 
 
-# first get the related HitCount object for your model object
-# hit_count = HitCount.objects.get_for_object(News)
-# hit_count_response = HitCountMixin.hit_count(request, hit_count)
-
-
 class HomeView(View):
     def get(self, request):
         categories = Category.objects.all()
